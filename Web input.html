@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Input Data Barang</title>
+    <!-- Memuat Tailwind CSS dari CDN untuk styling yang mudah dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Konfigurasi Tailwind untuk menggunakan font Inter dan rounded corners -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '2rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Gaya kustom tambahan jika diperlukan, meskipun sebagian besar ditangani oleh Tailwind */
+        body {
+            font-family: 'Inter', sans-serif; /* Menggunakan font Inter */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-indigo-200 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg space-y-6">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Masukkan Data Barang</h1>
+
+        <!-- Formulir Input -->
+        <form id="itemDataForm" class="space-y-5">
+            <div class="relative group">
+                <label for="barcode" class="block text-gray-700 text-sm font-semibold mb-2">Barcode:</label>
+                <input type="text" id="barcode" name="barcode" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+            </div>
+
+            <div class="relative group">
+                <label for="qty" class="block text-gray-700 text-sm font-semibold mb-2">Qty:</label>
+                <input type="number" id="qty" name="qty" min="1" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+            </div>
+
+            <div class="relative group">
+                <label for="palet" class="block text-gray-700 text-sm font-semibold mb-2">Palet:</label>
+                <input type="text" id="palet" name="palet" required
+                          class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+            </div>
+
+            <!-- Kolom baru: Dus -->
+            <div class="relative group">
+                <label for="dus" class="block text-gray-700 text-sm font-semibold mb-2">Dus:</label>
+                <input type="number" id="dus" name="dus" min="0" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 shadow-md">
+                Tambah Data Barang
+            </button>
+        </form>
+
+        <!-- Area untuk menampilkan output (akan menampilkan data terakhir yang diinput) -->
+        <div id="outputDisplay" class="mt-8 pt-6 border-t border-gray-200 hidden">
+            <h2 class="text-2xl font-bold text-center text-gray-700 mb-4">Data Terakhir yang Dimasukkan:</h2>
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                <p class="text-gray-700 mb-2"><strong>Barcode:</strong> <span id="outputBarcode" class="font-medium text-gray-900"></span></p>
+                <p class="text-gray-700 mb-2"><strong>Qty:</strong> <span id="outputQty" class="font-medium text-gray-900"></span></p>
+                <p class="text-gray-700 mb-2"><strong>Palet:</strong> <span id="outputPalet" class="font-medium text-gray-900"></span></p>
+                <p class="text-gray-700"><strong>Dus:</strong> <span id="outputDus" class="font-medium text-gray-900"></span></p>
+            </div>
+            <!-- Tombol untuk mengunduh semua data -->
+            <button id="downloadCsvBtn"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 shadow-md mt-4 hidden">
+                Unduh Semua Data (CSV)
+            </button>
+        </div>
+
+        <!-- Modal untuk notifikasi (menggantikan alert()) -->
+        <div id="notificationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <p id="modalMessage" class="text-lg font-semibold mb-4"></p>
+                <button id="closeModal" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Memastikan DOM telah dimuat sepenuhnya sebelum menjalankan skrip
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mengambil referensi ke elemen-elemen HTML
+            const itemDataForm = document.getElementById('itemDataForm');
+            const outputDisplay = document.getElementById('outputDisplay');
+            const outputBarcode = document.getElementById('outputBarcode'); // Diubah dari outputNamaBarang
+            const outputQty = document.getElementById('outputQty');
+            const outputPalet = document.getElementById('outputPalet');
+            const outputDus = document.getElementById('outputDus');
+            const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+
+            // Mengambil referensi ke elemen modal notifikasi
+            const notificationModal = document.getElementById('notificationModal');
+            const modalMessage = document.getElementById('modalMessage');
+            const closeModalButton = document.getElementById('closeModal');
+
+            // Array untuk menyimpan SEMUA data barang yang diinput
+            let allItemData = [];
+
+            /**
+             * Fungsi untuk menampilkan modal notifikasi dengan pesan tertentu.
+             * Menggantikan penggunaan alert().
+             * @param {string} message - Pesan yang akan ditampilkan di modal.
+             */
+            function showNotification(message) {
+                modalMessage.textContent = message;
+                notificationModal.classList.remove('hidden'); // Tampilkan modal
+            }
+
+            // Menambahkan event listener untuk tombol tutup modal
+            closeModalButton.addEventListener('click', function() {
+                notificationModal.classList.add('hidden'); // Sembunyikan modal
+            });
+
+            // Menambahkan event listener untuk submit form
+            itemDataForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Mencegah form dari refresh halaman
+
+                // Mengambil nilai dari setiap input
+                const barcode = document.getElementById('barcode').value.trim(); // Diubah dari namaBarang
+                const qty = document.getElementById('qty').value.trim();
+                const palet = document.getElementById('palet').value.trim();
+                const dus = document.getElementById('dus').value.trim();
+
+                // Melakukan validasi sederhana
+                if (barcode === '' || qty === '' || palet === '' || dus === '') {
+                    showNotification('Harap lengkapi semua bidang!');
+                    return; // Hentikan eksekusi jika ada bidang yang kosong
+                }
+
+                // Membuat objek data untuk input saat ini
+                const currentItemData = {
+                    barcode: barcode, // Diubah dari namaBarang
+                    qty: qty,
+                    palet: palet,
+                    dus: dus
+                };
+
+                // Menambahkan data input saat ini ke array allItemData
+                allItemData.push(currentItemData);
+
+                // Menampilkan data terakhir yang diinput ke dalam area output
+                outputBarcode.textContent = barcode; // Diubah dari outputNamaBarang
+                outputQty.textContent = qty;
+                outputPalet.textContent = palet;
+                outputDus.textContent = dus;
+
+                // Menampilkan div output dan tombol unduh
+                outputDisplay.classList.remove('hidden');
+                // Tampilkan tombol unduh jika ada data dalam array
+                if (allItemData.length > 0) {
+                    downloadCsvBtn.classList.remove('hidden');
+                }
+
+                // Memberikan notifikasi bahwa data berhasil disimpan
+                showNotification('Data barang berhasil ditambahkan!');
+
+                // Opsional: Mereset form setelah data berhasil ditampilkan
+                itemDataForm.reset();
+            });
+
+            // Menambahkan event listener untuk tombol Unduh CSV
+            downloadCsvBtn.addEventListener('click', function() {
+                if (allItemData.length === 0) {
+                    showNotification('Tidak ada data untuk diunduh. Harap isi formulir terlebih dahulu.');
+                    return;
+                }
+
+                // Membuat string CSV
+                // Header CSV
+                let csvContent = "Barcode,Qty,Palet,Dus\n"; // Update header CSV
+
+                // Fungsi untuk mengamankan string untuk CSV (menambahkan kutip jika ada koma atau kutip)
+                const escapeCsv = (value) => {
+                    if (value === null || value === undefined) {
+                        return ''; // Tangani null/undefined sebagai string kosong
+                    }
+                    value = String(value); // Pastikan nilai adalah string
+                    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                        // Ganti kutip ganda dengan dua kutip ganda, lalu lingkupi dengan kutip ganda
+                        return `"${value.replace(/"/g, '""')}"`;
+                    }
+                    return value;
+                };
+
+                // Menambahkan setiap baris data dari allItemData ke string CSV
+                allItemData.forEach(data => {
+                    csvContent += `${escapeCsv(data.barcode)},${escapeCsv(data.qty)},${escapeCsv(data.palet)},${escapeCsv(data.dus)}\n`; // Update data mapping
+                });
+
+                // Membuat Blob dari string CSV
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+                // Membuat URL objek dari Blob
+                const url = URL.createObjectURL(blob);
+
+                // Membuat elemen <a> untuk mengunduh
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'data_barang_akumulasi.csv'); // Nama file yang akan diunduh
+                link.style.visibility = 'hidden'; // Sembunyikan link
+                document.body.appendChild(link); // Tambahkan ke DOM
+
+                // Simulasikan klik pada link untuk memulai unduhan
+                link.click();
+
+                // Hapus link dan URL objek setelah unduhan dimulai (atau selesai)
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                showNotification(`Berhasil mengunduh ${allItemData.length} baris data barang sebagai CSV!`);
+            });
+        });
+    </script>
+</body>
+</html>
