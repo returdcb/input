@@ -2,28 +2,102 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Form Retur</title>
+  <title>Form Input 
+  </title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 350px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0d47a1;
+    }
+  </style>
 </head>
 <body>
-  <h2>Form Input Retur</h2>
-  <form id="returForm">
-    Nama Barang: <input type="text" name="nama_barang" required><br><br>
-    Jumlah: <input type="number" name="jumlah" required><br><br>
-    Dus: <input type="number" name="dus" required><br><br>
-    Palet: <input type="number" name="palet" required><br><br>
-    <button type="submit">Kirim</button>
-  </form>
+
+  <div class="container">
+    <h2>Form Input
+    </h2>
+    <form id="returForm">
+      <label>Nama Barang:</label>
+      <input type="text" name="nama_barang" required>
+
+      <label>Jumlah:</label>
+      <input type="number" name="jumlah" required>
+
+      <label>Dus:</label>
+      <input type="text" name="dus" required>
+
+      <label>Palet:</label>
+      <input type="text" name="palet" required>
+
+      <button type="submit">Kirim</button>
+    </form>
+  </div>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxLg-CflzFJcqhTmyfapg7r9PyLlA1VXIv__crFwIq8c80nU8xCnRBY9UUNOSE0GgPy/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxLg-CflzFJcqhTmyfapg7r9PyLlA1VXIv__crFwIq8c80nU8xCnRBY9UUNOSE0GgPy/exec'; // Ganti dengan URL milikmu
     const form = document.getElementById('returForm');
 
     form.addEventListener('submit', e => {
       e.preventDefault();
+
       fetch(scriptURL, { method: 'POST', body: new FormData(form) })
-        .then(response => alert("Data berhasil dikirim!"))
+        .then(response => {
+          alert("Berhasil");
+          form.reset();
+        })
         .catch(error => alert("Gagal: " + error.message));
     });
   </script>
+
 </body>
 </html>
