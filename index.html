@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Form Input Barang - Login</title>
+  <title>Form Input Barang Dari Cabang - Login</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -51,20 +51,21 @@
   </div>
 
   <div id="mainForm" style="display:none;">
-    <h2>Form Input Barang </h2>
+    <h2>Form Input Barang Dari Cabang </h2>
     <form id="returForm">
-      <input type="text" name="nama_barang" placeholder="Nama Barang" required>
-      <input type="number" name="jumlah" placeholder="Jumlah" required>
-      <input type="text" name="dus" placeholder="Dus" required>
-      <input type="text" name="palet" placeholder="Palet" required>
-      <button type="submit">Kirim</button>
+      <input type="text" name="nama_cabang" placeholder="Nama Cabang" required>
+      <input type="text" name="nomor_retur" placeholder="Nomor Retur" required>
+      <input type="text" name="jumlah_dus" placeholder="Jumlah Dus" required>
+            <button type="submit">Kirim</button>
     </form>
   </div>
 </div>
 
 <script>
-  const VALID_USER = "sapan";
+  const VALID_USER = "returdcb";
   const VALID_PASS = "12345";
+
+  
 
   function login() {
     const user = document.getElementById("userId").value;
@@ -78,7 +79,7 @@
     }
   }
 
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbxLg-CflzFJcqhTmyfapg7r9PyLlA1VXIv__crFwIq8c80nU8xCnRBY9UUNOSE0GgPy/exec';
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbxiB2Y0cf-U4XMD6QrHjMlAMu6Qcaum391kGpr0lHi_lWJbyDSJvccaM82OMSMYwPubbg/exec' ;
   const form = document.getElementById('returForm');
 
   form.addEventListener('submit', e => {
