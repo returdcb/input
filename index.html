@@ -56,8 +56,8 @@
       margin-bottom: 15px;
       overflow: hidden;
     }
-    /* Tambahan style untuk teks operator */
-    .operator-text {
+    /* Mengubah nama class style agar sesuai konteks user */
+    .user-text {
       font-size: 14px;
       color: #555;
       margin-top: -10px;
@@ -78,7 +78,7 @@
 
   <div id="mainForm" style="display:none;">
     <h2>Form Input Barang</h2>
-    <div id="userDisplay" class="operator-text"></div>
+    <div id="userDisplay" class="user-text"></div>
     
     <div id="reader" style="display: none;"></div>
 
@@ -116,7 +116,8 @@
 
     if (LIST_USER[user] && LIST_USER[user] === pass) {
       currentUser = user; 
-      document.getElementById("userDisplay").innerText = "Operator: " + currentUser;
+      // PERBAIKAN TAMPILAN: Mengganti teks 'Operator' menjadi 'User'
+      document.getElementById("userDisplay").innerText = "User: " + currentUser;
       
       document.getElementById("loginForm").style.display = "none";
       document.getElementById("mainForm").style.display = "block";
@@ -148,9 +149,7 @@
           document.getElementById("nama_barang").value = decodedText;
           matikanKameraSaja();
         },
-        (errorMessage) => {
-          // Abaikan log error scanning realtime
-        }
+        (errorMessage) => {}
       ).catch(err => {
         alert("Akses kamera ditolak/gagal: " + err);
         matikanKameraSaja();
@@ -181,6 +180,7 @@
   }
 
   // Alur Kirim ke Google Sheets
+  // PASTIKAN URL DI BAWAH INI ADALAH URL HASIL DEPLOY ULANG TERBARU
   const scriptURL = 'https://script.google.com/macros/s/AKfycbxdQfXY1_u-NtfQTrRApf1vmDobxkw1IQOofiTwtt14d9CvSyW0Z3QoHzha2sJNMs-3/exec';
   const form = document.getElementById('returForm');
 
@@ -195,8 +195,8 @@
     // Menyisipkan data waktu
     formData.append('tanggal_masuk', sekarang.toLocaleString('id-ID', opsiWaktu));
     
-    // PERBAIKAN 2: Menyisipkan nama operator agar tersimpan di Google Sheets
-    formData.append('operator', currentUser);
+    // PERBAIKAN PAYLOAD: Mengubah kunci pengiriman dari 'operator' menjadi 'user'
+    formData.append('user', currentUser);
 
     // Respon instan di layar
     alert("Data berhasil dikirim!"); 
