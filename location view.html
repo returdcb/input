@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Monitoring Data Sheets</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .table-container {
+      background-color: #fff;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 900px;
+      overflow-x: auto;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    button {
+      background-color: #f57c00;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #e65100;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background-color: #1976d2;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .loading-text {
+      color: #777;
+      font-style: italic;
+      text-align: center;
+    }
+    .status-refresh {
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+<div class="table-container">
+  <div class="header-flex">
+    <div>
+      <h2>Dashboard Monitoring Barang</h2>
+      <div id="refreshStatus" class="status-refresh">Menghubungkan ke Google Sheets...</div>
+    </div>
+    <button onclick="muatDataTerinput()">🔄 Refresh Manual</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tanggal Masuk</th>
+        <th>User</th>
+        <th>Nama Barang</th>
+        <th>Jumlah</th>
+        <th>Dus</th>
+        <th>Palet</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr>
+        <td colspan="6" class="loading-text">Memuat data...</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  // MASUKKAN URL WEB APP GOOGLE SCRIPT YANG SAMA DI SINI
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbxdQfXY1_u-NtfQTrRApf1vmDobxkw1IQOofiTwtt14d9CvSyW0Z3QoHzha2sJNMs-3/exec';
+
+  function muatDataTerinput() {
+    const tableBody = document.getElementById("tableBody");
+    const refreshStatus = document.getElementById("refreshStatus");
+    const waktuSekarang = new Date().toLocaleTimeString('id-ID');
+
+    fetch(scriptURL)
+      .then(res => res.json())
+      .then(data => {
+        tableBody.innerHTML = ""; // Kosongkan text loading
+        
+        if(data.length === 0 || data.error) {
+          tableBody.innerHTML = '<tr><td colspan="6" class="loading-text">Tidak ada data di Google Sheets.</td></tr>';
+          return;
+        }
+
+        // Urutkan data dari yang paling baru ke lama
+        data.reverse();
+
+        // Loop data untuk dimasukkan ke tabel HTML
+        data.forEach(item => {
+          let row = `<tr>
+            <td>${item.tanggal || '-'}</td>
+            <td>${item.user || '-'}</td>
+            <td>${item.nama_barang || '-'}</td>
+            <td>${item.jumlah || '-'}</td>
+            <td>${item.dus || '-'}</td>
+            <td>${item.palet || '-'}</td>
+          </tr>`;
+          tableBody.innerHTML += row;
+        });
+
+        refreshStatus.innerText = "Terakhir diperbarui otomatis pada: " + waktuSekarang;
+      })
+      .catch(err => {
+        console.error("Gagal mengambil data:", err);
+        refreshStatus.innerText = "Gagal memuat data otomatis.";
+      });
+  }
+
+  // JALANKAN SAAT HALAMAN PERTAMA KALI DIBUKA
+  muatDataTerinput();
+
+  // SYSTEM AUTO-REFRESH JALAN TIAP 10 DETIK (10000 ms)
+  setInterval(muatDataTerinput, 10000);
+</script>
+
+</body>
+</html>
