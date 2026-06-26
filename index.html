@@ -87,14 +87,30 @@
 </div>
 
 <script>
-  // Autentikasi Sederhana
-  const VALID_USER = "retur";
-  const VALID_PASS = "12345";
+ // DATA MASTER USER (Silahkan tambah atau ubah list user di sini)
+  const LIST_USER = {
+    "retur": "12345",
+    "ismail": "12345",
+    "agit": "12345",
+    "bhintang": "12345",
+    "wanda":"12345",
+    "septian":"12345",
+    "arya": "12345"
+  };
 
+  // Variabel global untuk menyimpan siapa yang login
+  let currentUser = ""; 
+
+  // Fungsi Autentikasi Multi-User
   function login() {
-    const user = document.getElementById("userId").value;
+    const user = document.getElementById("userId").value.trim();
     const pass = document.getElementById("password").value;
-    if (user === VALID_USER && pass === VALID_PASS) {
+
+    // Cek apakah user ada di list dan password-nya cocok
+    if (LIST_USER[user] && LIST_USER[user] === pass) {
+      currentUser = user; // Simpan nama user aktif
+      document.getElementById("userDisplay").innerText = "Operator: " + currentUser;
+      
       document.getElementById("loginForm").style.display = "none";
       document.getElementById("mainForm").style.display = "block";
     } else {
